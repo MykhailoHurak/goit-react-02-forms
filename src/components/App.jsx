@@ -1,6 +1,9 @@
 import React from 'react';
+import shortid from 'shortid';
 import TodoList from './TodoList';
 import './TodoList/TodoList.css';
+
+import TodoEditor from './TodoEditor'
 
 class App extends React.Component {
   state = {
@@ -9,6 +12,20 @@ class App extends React.Component {
       { id: 'id-2', text: 'Task 2', completed: false },
       { id: 'id-3', text: 'Task 3', completed: false },
     ],
+  };
+
+  addTodo = (text) => {
+    console.log(text);
+
+    const todo = {
+      id: shortid.generate(),
+      text: text,
+      completed: false,
+    };
+
+    this.setState((previousState) => ({
+      todos: [todo, ...previousState.todos],
+    }))
   };
 
   deleteTodo = (todoId) => {
@@ -32,11 +49,8 @@ class App extends React.Component {
     //   })
     // }));
 
-    this.setState((previousState) => ({
-      todos: previousState.todos.map(todo => todo.id === todoId ? {
-            ...todo,
-            completed: !todo.completed
-          } : todo)
+    this.setState(({ todos }) => ({
+      todos: todos.map(todo => todo.id === todoId ? { ...todo, completed: !todo.completed } : todo)
     }))
   };
 
@@ -56,6 +70,9 @@ class App extends React.Component {
             <p>Total Todos: <span className='TodoList__totalCount'>{totalTodoCount}</span></p>
             <p>Total Done: <span className='TodoList__totalCount'>{totalCompletedTodoCount}</span></p>
           </div>
+          <TodoEditor
+            onSubmit={this.addTodo}
+          />
           <TodoList
             todos={todos}
             onDeleteTodo={this.deleteTodo}
