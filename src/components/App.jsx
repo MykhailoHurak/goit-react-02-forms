@@ -3,15 +3,18 @@ import shortid from 'shortid';
 import TodoList from './TodoList';
 import './TodoList/TodoList.css';
 
-import TodoEditor from './TodoEditor'
+import TodoEditor from './TodoEditor';
+import TodoFilter from './TodoFilter';
 
 class App extends React.Component {
   state = {
     todos: [
-      { id: 'id-1', text: 'Task 1', completed: true },
-      { id: 'id-2', text: 'Task 2', completed: false },
-      { id: 'id-3', text: 'Task 3', completed: false },
+      { id: 'id-1', text: 'Man Utd', completed: true },
+      { id: 'id-2', text: 'Man City', completed: false },
+      { id: 'id-3', text: 'Chelsea London', completed: false },
+      { id: 'id-4', text: 'Arsenal London', completed: false },
     ],
+    filter: ''
   };
 
   addTodo = (text) => {
@@ -54,14 +57,39 @@ class App extends React.Component {
     }))
   };
 
+  changeFilter = (event) => {
+    this.setState({ filter: event.currentTarget.value })
+  };
+
+  getVisibleTodos = () => {
+    const normalizedFilter = this.state.filter.toLowerCase();
+
+    return this.state.todos.filter((todo) => (
+      todo.text.toLowerCase().includes(normalizedFilter)
+    ))
+  };
+
+  calculateCompletedTodos = () => {
+    const { todos } = this.state;
+    return todos.reduce(
+      (acc, todo) => (todo.completed ? acc + 1 : acc), 0
+    )
+  };
+
   render() {
     const { todos } = this.state;
 
     const totalTodoCount = todos.length;
-    const totalCompletedTodoCount = (todos.reduce(
-      (acc, todo) => (todo.completed ? acc + 1 : acc), 0
-    ));
+    const totalCompletedTodoCount = this.calculateCompletedTodos();
 
+    // const normalizedFilter = this.state.filter.toLowerCase();
+
+    // const visibleTodos = this.state.todos.filter((todo) => (
+    //   todo.text.toLowerCase().includes(normalizedFilter)
+    // ))
+
+    const visibleTodos = this.getVisibleTodos();
+    
     return (
       <>
         <div className='TodoListBox'>
@@ -70,11 +98,18 @@ class App extends React.Component {
             <p>Total Todos: <span className='TodoList__totalCount'>{totalTodoCount}</span></p>
             <p>Total Done: <span className='TodoList__totalCount'>{totalCompletedTodoCount}</span></p>
           </div>
+
           <TodoEditor
             onSubmit={this.addTodo}
           />
+
+          <TodoFilter
+            value={this.state.filter}
+            onChange={this.changeFilter}
+          />
+
           <TodoList
-            todos={todos}
+            todos={visibleTodos}
             onDeleteTodo={this.deleteTodo}
             onToggleCompleted={this.toggleCompleted}
           />
